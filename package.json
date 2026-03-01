@@ -1,0 +1,21 @@
+{
+  "name": "openai-thread-relay",
+  "version": "1.0.0",
+  "description": "Relay loop between two OpenAI API threads (Thread A <-> Thread B)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "openai",
+    "threads",
+    "relay",
+    "assistant"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "openai": "^6.7.0"
+  }
+}

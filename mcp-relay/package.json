@@ -1,0 +1,17 @@
+{
+  "name": "mcp-relay",
+  "version": "1.0.0",
+  "description": "MCP stdio server to send/read messages from OpenAI Thread A relay",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "dotenv": "^16.6.1",
+    "openai": "^6.7.0",
+    "zod": "^3.24.1"
+  }
+}

@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+mcp-relay/node_modules/
+
+# env files / secrets
+.env
+mcp-relay/.env
+
+# local runtime state
+state.json
+*.log
+
+# archives / OS
+*.zip
+.DS_Store
+Thumbs.db
