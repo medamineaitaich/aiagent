@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Test</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121935;
+        --text: #edf2ff;
+        --muted: #9ca8c9;
+        --accent: #3ddc97;
+        --danger: #ff6b6b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(1200px 600px at 10% -20%, #24366b, var(--bg));
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      .card {
+        background: linear-gradient(180deg, #182247, var(--panel));
+        border: 1px solid #2b3d77;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 6px 0;
+        color: var(--muted);
+      }
+      textarea,
+      input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #32498e;
+        background: #0d1530;
+        color: var(--text);
+        padding: 10px;
+        margin: 8px 0;
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .primary {
+        background: var(--accent);
+        color: #062618;
+      }
+      .secondary {
+        background: #8ab4ff;
+        color: #021435;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #0a1024;
+        border: 1px solid #263a70;
+        border-radius: 10px;
+        padding: 12px;
+        min-height: 120px;
+      }
+      .err {
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card">
+        <h1>MCP Endpoint Test</h1>
+        <p>Endpoint: <code>/mcp</code> (rewritten to <code>/api/mcp</code>)</p>
+        <label for="token">MCP bearer token</label>
+        <input id="token" placeholder="Paste MCP_ACCESS_TOKEN value" />
+      </section>
+
+      <section class="card">
+        <label for="text">Message to send</label>
+        <textarea id="text" placeholder="Type message for Thread A"></textarea>
+        <div class="row">
+          <button class="primary" id="sendBtn">Send to Thread A</button>
+          <button class="secondary" id="latestBtn">Get latest from Thread A</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <p>Result:</p>
+        <pre id="result"></pre>
+      </section>
+    </main>
+
+    <script>
+      const resultEl = document.getElementById("result");
+
+      function setResult(text, isError = false) {
+        resultEl.textContent = text;
+        resultEl.className = isError ? "err" : "";
+      }
+
+      async function callMcp(method, params) {
+        const token = document.getElementById("token").value.trim();
+        if (!token) {
+          throw new Error("Token is required.");
+        }
+
+        const payload = {
+          jsonrpc: "2.0",
+          id: Date.now(),
+          method,
+          params
+        };
+
+        const res = await fetch("/mcp", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+          throw new Error(JSON.stringify(json, null, 2));
+        }
+        if (json.error) {
+          throw new Error(`${json.error.message}`);
+        }
+        return json.result;
+      }
+
+      document.getElementById("sendBtn").addEventListener("click", async () => {
+        try {
+          const text = document.getElementById("text").value;
+          const result = await callMcp("tools/call", {
+            name: "send_to_thread_a",
+            arguments: { text }
+          });
+          setResult(result?.content?.[0]?.text || JSON.stringify(result, null, 2));
+        } catch (error) {
+          setResult(error.message || String(error), true);
+        }
+      });
+
+      document.getElementById("latestBtn").addEventListener("click", async () => {
+        try {
+          const result = await callMcp("tools/call", {
+            name: "get_latest_from_thread_a",
+            arguments: {}
+          });
+          setResult(result?.content?.[0]?.text || JSON.stringify(result, null, 2));
+        } catch (error) {
+          setResult(error.message || String(error), true);
+        }
+      });
+    </script>
+  </body>
+</html>
+

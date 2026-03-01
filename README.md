@@ -120,3 +120,55 @@ node index.js
 ```bash
 node create-assistant.js
 ```
+
+## Remote MCP Server (Vercel)
+
+This repo now exposes a real MCP JSON-RPC endpoint over HTTP at:
+
+- `https://<your-domain>/mcp` (rewritten to `/api/mcp`)
+
+Supported methods:
+
+- `initialize`
+- `tools/list`
+- `tools/call`
+- `ping`
+
+Tools:
+
+- `send_to_thread_a` with input `{ "text": "..." }`
+- `get_latest_from_thread_a` with input `{}`
+
+### Security
+
+The MCP endpoint requires bearer auth:
+
+`Authorization: Bearer <MCP_ACCESS_TOKEN>`
+
+### Vercel env vars
+
+Set these in Vercel Project Settings -> Environment Variables:
+
+- `OPENAI_API_KEY`
+- `THREAD_A_ID`
+- `MCP_ACCESS_TOKEN`
+
+### Test UI
+
+Use:
+
+- `/test`
+
+The page calls `/mcp` with JSON-RPC and lets you:
+
+- Send to Thread A
+- Get latest from Thread A
+
+### Agent Builder MCP Node
+
+In OpenAI Agent Builder:
+
+1. Add MCP node.
+2. Server URL: `https://aiagent-silk.vercel.app/mcp`
+3. Auth / access token: use `MCP_ACCESS_TOKEN`.
+4. Save and test.
